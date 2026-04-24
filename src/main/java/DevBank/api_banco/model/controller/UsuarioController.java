@@ -22,4 +22,12 @@ public class UsuarioController {
         // @RequestBody fala para o spring pegar o JSON do POSTMAN e transformar em um objeto Usuario.
         return  repository.save(novoUsuario);
     }
+
+    // {id} indica que sera recebido valor dinamico da URL.
+    @GetMapping("/{id}")
+    public Usuario buscarUsuario(@PathVariable Long id) {
+        // vai no banco, buca o ID, caso nao encontre, responde com um ERRO.
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não Encontrado!"));
+    }
 }
