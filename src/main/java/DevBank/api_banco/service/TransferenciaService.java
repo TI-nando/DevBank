@@ -2,7 +2,7 @@ package DevBank.api_banco.service;
 
 import DevBank.api_banco.model.Usuario;
 import DevBank.api_banco.model.UsuarioRepository;
-import DevBank.api_banco.model.dto.TransferenciaDTO;
+import DevBank.api_banco.dto.TransferenciaDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

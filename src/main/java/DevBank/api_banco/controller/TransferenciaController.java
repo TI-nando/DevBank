@@ -1,6 +1,6 @@
-package DevBank.api_banco.model.controller;
+package DevBank.api_banco.controller;
 
-import DevBank.api_banco.model.dto.TransferenciaDTO;
+import DevBank.api_banco.dto.TransferenciaDTO;
 import DevBank.api_banco.service.TransferenciaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

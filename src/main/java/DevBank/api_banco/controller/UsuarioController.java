@@ -1,4 +1,4 @@
-package DevBank.api_banco.model.controller;
+package DevBank.api_banco.controller;
 
 import DevBank.api_banco.model.Usuario;
 import DevBank.api_banco.model.UsuarioRepository;
