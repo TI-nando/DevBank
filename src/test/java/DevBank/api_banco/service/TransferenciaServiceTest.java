@@ -41,8 +41,8 @@ class TransferenciaServiceTest {
         TransferenciaDTO dto = new TransferenciaDTO(1L, 2L, new BigDecimal("30.00"));
 
         // Simulando o comportamento do banco de dados (Mockito)
-        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(pagador));
-        when(usuarioRepository.findById(2L)).thenReturn(Optional.of(recebedor));
+        when(usuarioRepository.findByIdComLock(1L)).thenReturn(Optional.of(pagador));
+        when(usuarioRepository.findByIdComLock(2L)).thenReturn(Optional.of(recebedor));
 
         // 2. ACT (Ação - Rodando o seu código)
         // Nota: Adapte o nome do método 'realizarTransferencia' se estiver diferente no seu Service
@@ -69,11 +69,10 @@ class TransferenciaServiceTest {
         recebedor.setId(2L);
         recebedor.setSaldo(new BigDecimal("50.00"));
 
-        // MUDANÇA AQUI TAMBÉM:
         TransferenciaDTO dto = new TransferenciaDTO(1L, 2L, new BigDecimal("30.00"));
 
-        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(pagador));
-        when(usuarioRepository.findById(2L)).thenReturn(Optional.of(recebedor));
+        when(usuarioRepository.findByIdComLock(1L)).thenReturn(Optional.of(pagador));
+        when(usuarioRepository.findByIdComLock(2L)).thenReturn(Optional.of(recebedor));
 
         // 2 & 3. ACT e ASSERT (Espera-se que o código estoure um Erro/Exception)
         // O aviso amarelo sumiu porque removemos a variável que não estava sendo usada

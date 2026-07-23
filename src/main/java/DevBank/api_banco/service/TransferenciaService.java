@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TransferenciaService {
+
     @Autowired
     private UsuarioRepository repository;
 
@@ -17,11 +18,11 @@ public class TransferenciaService {
     public void realizarTransferencia(TransferenciaDTO dados) {
 
         // 1. Ir buscar o remetente à base de dados usando o ID
-        Usuario remetente = repository.findById(dados.idRemetente())
+        Usuario remetente = repository.findByIdComLock(dados.idRemetente())
                 .orElseThrow(() -> new RuntimeException("Remetente não encontrado!"));
 
         // 2. Ir buscar o destinatário à base de dados usando o ID
-        Usuario destinatario = repository.findById(dados.idDestinatario())
+        Usuario destinatario = repository.findByIdComLock(dados.idDestinatario())
                 .orElseThrow(() -> new RuntimeException("Destinatário não encontrado!"));
 
         // 3. Verificar se o remetente tem saldo suficiente
