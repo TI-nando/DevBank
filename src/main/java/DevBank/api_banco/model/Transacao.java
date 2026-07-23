@@ -35,7 +35,7 @@ public class Transacao {
     @Column(name = "data_hora")
     private LocalDateTime dataHora;
 
-    public Transacao(Usuario remetente, Usuario destinatario, BigDecimal valor, LocalDateTime dataHora) {
+    public Transacao(Usuario remetente, Usuario destinatario, BigDecimal valor) {
         this.remetente = remetente;
         this.destinatario = destinatario;
         this.valor = valor;
