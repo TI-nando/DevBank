@@ -43,6 +43,11 @@ public class UsuarioController {
     @GetMapping("/{id}/extrato")
     public ResponseEntity<List<ExtratoDTO>> consultarExtrato(@PathVariable Long id) {
 
+        // Verificador de usuarios
+        if (!repository.existsById(id)) {
+            return ResponseEntity.notFound().build(); // Retorna erro 404 Not Found
+        }
+
         // Passo A: Busca a lista de transações cruas do banco de dados
         List<Transacao> transacoes = transacaoRepository.buscarExtratoPorUsuario(id);
 
