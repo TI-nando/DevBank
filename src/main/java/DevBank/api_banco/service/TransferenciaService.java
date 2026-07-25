@@ -24,15 +24,15 @@ public class TransferenciaService {
 
         // 1. Ir buscar o remetente à base de dados usando o ID
         Usuario remetente = repository.findByIdComLock(dados.idRemetente())
-                .orElseThrow(() -> new RuntimeException("Remetente não encontrado!"));
+                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("Remetente não encontrado!"));
 
         // 2. Ir buscar o destinatário à base de dados usando o ID
         Usuario destinatario = repository.findByIdComLock(dados.idDestinatario())
-                .orElseThrow(() -> new RuntimeException("Destinatário não encontrado!"));
+                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("Destinatário não encontrado!"));
 
         // 3. Verificar se o remetente tem saldo suficiente
         if (remetente.getSaldo().compareTo(dados.valor()) < 0) {
-            throw new RuntimeException("Saldo insuficiente para realizar a transferência.");
+            throw new IllegalArgumentException("Saldo insuficiente para realizar a transferência.");
         }
 
         // 4. Atualiza os saldos
