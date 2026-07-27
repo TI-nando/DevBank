@@ -21,5 +21,8 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: 3. Rodar os testes automatizados
+      - name: 3. Dar permissão de execução para o Maven
+        run: chmod +x ./mvnw
+
+      - name: 4. Rodar os testes automatizados
         run: ./mvnw clean test
