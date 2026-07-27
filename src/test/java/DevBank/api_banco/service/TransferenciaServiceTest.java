@@ -2,6 +2,7 @@ package DevBank.api_banco.service;
 
 import DevBank.api_banco.model.Usuario;
 import DevBank.api_banco.model.UsuarioRepository;
+import DevBank.api_banco.model.TransacaoRepository;
 import DevBank.api_banco.dto.TransferenciaDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,10 @@ class TransferenciaServiceTest {
     @Mock
     private UsuarioRepository usuarioRepository;
 
+    // 💡 SOLUÇÃO: Adicionando o mock do repositório de transações
+    @Mock
+    private TransacaoRepository transacaoRepository;
+
     @InjectMocks
     private TransferenciaService transferenciaService;
 
@@ -37,7 +42,6 @@ class TransferenciaServiceTest {
         recebedor.setId(2L);
         recebedor.setSaldo(new BigDecimal("50.00")); // Recebedor tem 50 reais
 
-        // MUDANÇA AQUI: Criando o Record/DTO passando os 3 argumentos direto (PagadorId, RecebedorId, Valor)
         TransferenciaDTO dto = new TransferenciaDTO(1L, 2L, new BigDecimal("30.00"));
 
         // Simulando o comportamento do banco de dados (Mockito)
@@ -45,7 +49,6 @@ class TransferenciaServiceTest {
         when(usuarioRepository.findByIdComLock(2L)).thenReturn(Optional.of(recebedor));
 
         // 2. ACT (Ação - Rodando o seu código)
-        // Nota: Adapte o nome do método 'realizarTransferencia' se estiver diferente no seu Service
         assertDoesNotThrow(() -> transferenciaService.realizarTransferencia(dto));
 
         // 3. ASSERT (Verificação)
@@ -74,11 +77,8 @@ class TransferenciaServiceTest {
         when(usuarioRepository.findByIdComLock(1L)).thenReturn(Optional.of(pagador));
         when(usuarioRepository.findByIdComLock(2L)).thenReturn(Optional.of(recebedor));
 
-        // 2 & 3. ACT e ASSERT (Espera-se que o código estoure um Erro/Exception)
-        // O aviso amarelo sumiu porque removemos a variável que não estava sendo usada
-        assertThrows(RuntimeException.class, () -> transferenciaService.realizarTransferencia(dto));
+        assertThrows(IllegalArgumentException.class, () -> transferenciaService.realizarTransferencia(dto));
 
-        // Verifica que o banco NUNCA foi chamado para salvar, já que a transação falhou
         verify(usuarioRepository, never()).save(any(Usuario.class));
     }
 }
