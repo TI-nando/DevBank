@@ -14,8 +14,8 @@ public record ExtratoDTO(
     public ExtratoDTO(Transacao transacao) {
         this(
                 transacao.getId(),
-                transacao.getRemetente().getId(),
-                transacao.getDestinatario().getId(),
+                transacao.getRemetente() != null ? transacao.getRemetente().getId() : null,
+                transacao.getDestinatario() != null ? transacao.getDestinatario().getId() : null,
                 transacao.getValor(),
                 transacao.getDataHora()
         );

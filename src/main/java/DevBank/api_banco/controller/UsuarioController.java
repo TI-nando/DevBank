@@ -1,10 +1,12 @@
 package DevBank.api_banco.controller;
 
 import DevBank.api_banco.dto.ExtratoDTO;
+import DevBank.api_banco.dto.OperacaoDTO;
 import DevBank.api_banco.model.Transacao;
 import DevBank.api_banco.model.TransacaoRepository;
 import DevBank.api_banco.model.Usuario;
 import DevBank.api_banco.model.UsuarioRepository;
+import DevBank.api_banco.service.OperacaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,9 @@ public class UsuarioController {
 
     @Autowired
     private TransacaoRepository transacaoRepository;
+
+    @Autowired
+    private OperacaoService operacaoService;
 
     @GetMapping("/teste")
     public String testeApi() {
@@ -58,5 +63,17 @@ public class UsuarioController {
 
         // Passo C: Devolve a lista formatada com o status 200 (OK)
         return ResponseEntity.ok(extrato);
+    }
+
+    @PostMapping("/{id}/deposito")
+    public ResponseEntity<String> depositar(@PathVariable Long id, @RequestBody OperacaoDTO dto) {
+        operacaoService.depositar(id, dto);
+        return ResponseEntity.ok("Depósito realizado com sucesso!");
+    }
+
+    @PostMapping("/{id}/saque")
+    public ResponseEntity<String> sacar(@PathVariable Long id, @RequestBody OperacaoDTO dto) {
+        operacaoService.sacar(id, dto);
+        return ResponseEntity.ok("Saque realizado com sucesso!");
     }
 }

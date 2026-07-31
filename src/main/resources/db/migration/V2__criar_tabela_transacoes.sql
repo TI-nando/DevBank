@@ -1,7 +1,7 @@
 CREATE TABLE transacoes (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    remetente_id BIGINT NOT NULL,
-    destinatario_id BIGINT NOT NULL,
+    remetente_id BIGINT,
+    destinatario_id BIGINT,
     valor DECIMAL(19,2) NOT NULL,
     data_hora TIMESTAMP NOT NULL,
 
