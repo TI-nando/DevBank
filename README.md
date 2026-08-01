@@ -1,118 +1,66 @@
-Markdown
-# 🏦 DevBank API
+# 🏦 DevBank API 
 
-![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
-![H2 Database](https://img.shields.io/badge/H2_Database-003545?style=for-the-badge&logo=mysql&logoColor=white)
+![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=java&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3-6DB33F?style=for-the-badge&logo=spring&logoColor=white)
 ![Flyway](https://img.shields.io/badge/Flyway-CC0200?style=for-the-badge&logo=flyway&logoColor=white)
+![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
+![Status](https://img.shields.io/badge/Status-Em_Desenvolvimento_Contínuo-blue?style=for-the-badge)
 
-Uma API RESTful desenvolvida em Java e Spring Boot para simular operações bancárias essenciais, com foco em segurança de transações e boas práticas de arquitetura.
+Uma RESTful API robusta para simulação de operações bancárias. 
 
-## 🎯 Objetivo do Projeto
-
-O DevBank foi construído para solidificar conhecimentos no ecossistema Spring, implementando um fluxo completo de ponta a ponta: desde a modelagem do banco de dados com migrações até o tratamento global de exceções, simulando cenários reais de regras de negócio financeiras.
-
-## 🚀 Tecnologias e Práticas Utilizadas
-
-* **Java 17**
-* **Spring Boot** (Web, Data JPA)
-* **H2 Database** (Banco de dados em memória para testes ágeis)
-* **Flyway** (Versionamento e controle de migrações do banco de dados)
-* **Lombok** (Redução de boilerplate de código)
-* **Padrão DTO** (Data Transfer Object)
-* **Controle de Transações** (`@Transactional` para garantir a integridade do saldo)
-* **Tratamento Global de Erros** (`@RestControllerAdvice` para respostas de erro amigáveis)
+> **Aviso de Evolução:** Este projeto é ativo. Ele não é um sistema estático, mas sim um ambiente de aprendizado contínuo onde aplico conceitos reais de Backend, arquitetura e DevOps à medida que evoluo na minha jornada como desenvolvedor.
 
 ---
 
-## 🧠 Explicação Técnica e Arquitetura do Projeto
+## 🚀 Funcionalidades Atuais
 
-Para garantir os requisitos de um sistema corporativo e financeiro do mundo real, a API foi desenhada utilizando os seguintes conceitos avançados do ecossistema Java/Spring:
-
-### 1. Tratamento Global de Erros (`TratadorDeErros.java`)
-Em vez de espalhar blocos repetitivos de `try-catch` por todos os Controladores da aplicação ou expor *stacktraces* internos para o cliente, foi implementada uma estrutura centralizada utilizando interceptadores do Spring:
-* **`@RestControllerAdvice`**: Intercepta de forma global as exceções lançadas em qualquer ponto da camada de controle.
-* **`@ExceptionHandler`**: Captura falhas específicas (como erros de validação ou de negócio) e as mapeia para um objeto padronizado (`ErroDTO`), garantindo que o cliente receba sempre uma resposta JSON limpa, amigável e com o status HTTP adequado (ex: `400 Bad Request`).
-
-### 2. Controle Transacional Seguro (`@Transactional`)
-Operações financeiras exigem conformidade estrita com as propriedades ACID (Atomicidade, Consistência, Isolamento e Durabilidade). No `TransferenciaService.java`:
-* A anotação **`@Transactional`** garante que todo o fluxo de transferência (verificação de saldo, débito da conta de origem e crédito na conta de destino) seja executado como uma **única unidade atômica**.
-* Caso ocorra qualquer falha ou erro inesperado no meio do processamento (como perda de conexão ou variações de regra), o Spring executa automaticamente o **`rollback`**, desfazendo todas as alterações e impedindo a inconsistência de dados.
-
-### 3. Evolução de Banco de Dados com Migrations (`Flyway`)
-A estrutura do banco de dados não depende de geração automática mágica de ORM em produção. Foi adotado o **Flyway** para versionamento estruturado do esquema do banco de dados através de arquivos SQL nativos (`V1__criar_tabela_usuarios.sql`). Isso assegura rastreabilidade de alterações e padronização entre ambientes de desenvolvimento, testes e produção.
-
-### 4. Imutabilidade e Performance com Java Records (`DTOs`)
-Para a transferência de dados entre as camadas da API (Payloads de Entrada e Saída), foram utilizados os modernos **Java Records** (como o `TransferenciaDTO`), eliminando códigos desnecessários (*boilerplate*) de Getters, Setters, `equals()` e `hashCode()`, além de assegurar que os dados trafeguem de forma estritamente imutável e segura.
+O *Core Business* do banco já está funcional, garantindo a integridade dos dados:
+* **Gerenciamento de Contas:** Criação de usuários com saldo inicial e validações de negócio.
+* **Operações Financeiras:** Depósitos e Saques com validação estrita de fundos. A API retorna comprovantes em tempo real com o saldo atualizado dinamicamente.
+* **Transferências Seguras (Anti-Race Condition):** Implementação de **Lock Pessimista** (`@Lock(LockModeType.PESSIMISTIC_WRITE)`) no banco de dados para evitar inconsistências caso duas transações ocorram no exato mesmo milissegundo.
+* **Extrato Inteligente:** Consulta cronológica de movimentações, com tratamento de dados via Operador Ternário no DTO para operações sem remetente/destinatário.
 
 ---
 
-## 🛠️ Como Executar o Projeto Localmente
+## 🏗️ Arquitetura e Decisões Técnicas
 
-### Passo 1: Clone este repositório
+* **Clean Architecture & Padrões:** Separação rígida de responsabilidades entre Controllers, Services e Repositories.
+* **Data Transfer Objects (DTOs):** Uso de `records` do Java 17 para blindar as entidades do banco e garantir o tráfego limpo de dados.
+* **Tratamento Global de Erros:** Interceptação de exceções (como `EntityNotFoundException` e `IllegalArgumentException`) para devolver Códigos HTTP padronizados (404, 400) sem vazar o Stack Trace da aplicação.
+* **Migrations Seguras:** Controle de versão do banco de dados utilizando Flyway, permitindo escalabilidade na estrutura das tabelas.
 
-### Passo 2: Entre na pasta do projeto
-Bash
+---
+
+## 🗺️ Roadmap: O que vem por aí?
+
+O DevBank está sempre subindo de nível. Estas são as próximas etapas mapeadas para o projeto:
+
+- [ ] **Bean Validation:** Blindar as entradas da API para impedir que usuários enviem dados em branco ou valores negativos diretamente no payload.
+- [ ] **Testes Automatizados (Mockito & JUnit):** Expandir a cobertura de testes unitários para os serviços de Depósito e Saque.
+- [ ] **Segurança (Spring Security + JWT):** Implementar autenticação baseada em tokens para proteger as rotas financeiras.
+- [ ] **Front-end Desacoplado:** Conectar a API REST a uma interface de usuário real desenvolvida em Angular.
+
+---
+
+## ⚙️ Como Executar o Projeto Localmente
+
+**Pré-requisitos:** JDK 17 instalado e Maven (ou uso do Wrapper `mvnw`).
+
+**1. Clone o repositório e acesse a pasta:**
+```bash
+git clone [https://github.com/seu-usuario/devbank.git](https://github.com/seu-usuario/devbank.git)
 cd devbank
+````
 
-### Passo 3: Execute o projeto usando o Maven
-Bash
-./mvnw spring-boot:run
-(No Windows, utilize mvnw.cmd spring-boot:run)
+**2. Inicie o servidor:**
 
-A aplicação estará a rodar localmente na porta 8080.
+No Windows: .\mvnw spring-boot:run
 
-# ⚙️ Como Usar a API (Endpoints e Exemplos)
-Pode utilizar ferramentas como o Postman ou o Insomnia para testar as funcionalidades abaixo.
+No Linux/Mac: ./mvnw spring-boot:run
 
-### 1. Cadastrar Usuário (POST /usuarios)
-Cria um novo utilizador no banco de dados com um saldo inicial.
+**3. Acesse o Swagger UI:**
+Abra o seu navegador e teste todas as rotas interativamente sem precisar do Postman:
+👉 http://localhost:8080/swagger-ui.html
 
-URL: http://localhost:8080/usuarios
-
-Body (JSON):
-
-JSON
-{
-  "nome": "Fernando Silva",
-  "login": "fernando.dev",
-  "senha": "senhaSegura123",
-  "saldo": 1000.00
-}
-
-### 2. Consultar Usuário (GET /usuarios/{id})
-Retorna os dados do utilizador especificado na URL, incluindo o seu saldo atualizado.
-
-URL: http://localhost:8080/usuarios/1
-
-### 3. Realizar Transferência (POST /transferencias)
-Realiza a transferência de valores entre dois utilizadores, utilizando os IDs gerados no cadastro.
-
-Regra de Negócio: A API valida automaticamente se o remetente possui saldo suficiente antes de efetuar a dedução e o acréscimo.
-
-Segurança: A operação é blindada pela anotação @Transactional, garantindo o rollback completo caso ocorra qualquer falha no processamento.
-
-URL: http://localhost:8080/transferencias
-
-Body (JSON):
-
-JSON
-{
-  "idRemetente": 1,
-  "idDestinatario": 2,
-  "valor": 150.50
-}
-# 🗄️ Acessando o Banco de Dados (H2 Console)
-Como o projeto utiliza o banco em memória H2, pode visualizar as tabelas (criadas automaticamente pelo Flyway) e os dados inseridos diretamente pelo navegador.
-
-Acesse no seu navegador: http://localhost:8080/h2-console
-
-Preencha os campos com as credenciais configuradas:
-
-JDBC URL: jdbc:h2:mem:meubanco
-
-User Name: sa
-
-Password: (deixe em branco)
-
-Clique em Connect para visualizar a tabela usuarios e testar queries SQL.
+## 🛡️ DevOps e CI/CD
+Este repositório possui Integração Contínua (CI) configurada via GitHub Actions. Qualquer novo código empurrado para a branch principal dispara automaticamente um servidor de validação que executa o build e roda os testes unitários, garantindo que o sistema nunca quebre em produção.
