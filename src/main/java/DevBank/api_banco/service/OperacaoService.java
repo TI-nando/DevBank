@@ -22,7 +22,7 @@ public class OperacaoService {
     private TransacaoRepository transacaoRepository;
 
     @Transactional
-    public void depositar(Long idUsuario, OperacaoDTO dto) {
+    public BigDecimal depositar(Long idUsuario, OperacaoDTO dto) {
         if (dto.valor().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("O valor do depósito deve ser maior que zero.");
         }
@@ -37,10 +37,13 @@ public class OperacaoService {
         // Gera o recibo: No depósito, o remetente é nulo (o dinheiro vem de fora)
         Transacao deposito = new Transacao(null, usuario, dto.valor());
         transacaoRepository.save(deposito);
+
+        // Retorna o saldo atualizado para o Controller
+        return usuario.getSaldo();
     }
 
     @Transactional
-    public void sacar(Long idUsuario, OperacaoDTO dto) {
+    public BigDecimal sacar(Long idUsuario, OperacaoDTO dto) {
         if (dto.valor().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("O valor do saque deve ser maior que zero.");
         }
@@ -59,5 +62,8 @@ public class OperacaoService {
         // Gera o recibo: No saque, o destinatário é nulo (o dinheiro vai para fora)
         Transacao saque = new Transacao(usuario, null, dto.valor());
         transacaoRepository.save(saque);
+
+        // Retorna o saldo atualizado para o Controller
+        return usuario.getSaldo();
     }
 }

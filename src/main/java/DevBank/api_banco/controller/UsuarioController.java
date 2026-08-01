@@ -1,5 +1,6 @@
 package DevBank.api_banco.controller;
 
+import DevBank.api_banco.dto.ComprovanteDTO;
 import DevBank.api_banco.dto.ExtratoDTO;
 import DevBank.api_banco.dto.OperacaoDTO;
 import DevBank.api_banco.model.Transacao;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController // aviasa o spring que essa classe vai responder a requisições web
@@ -66,14 +68,24 @@ public class UsuarioController {
     }
 
     @PostMapping("/{id}/deposito")
-    public ResponseEntity<String> depositar(@PathVariable Long id, @RequestBody OperacaoDTO dto) {
-        operacaoService.depositar(id, dto);
-        return ResponseEntity.ok("Depósito realizado com sucesso!");
+    public ResponseEntity<ComprovanteDTO> depositar(@PathVariable Long id, @RequestBody OperacaoDTO dto) {
+        BigDecimal novoSaldo = operacaoService.depositar(id, dto);
+
+        // Monta a mensagem dinâmica com o valor
+        String mensagem = "Depósito de R$ " + dto.valor() + " realizado com sucesso!";
+        ComprovanteDTO comprovante = new ComprovanteDTO(mensagem, novoSaldo);
+
+        return ResponseEntity.ok(comprovante);
     }
 
     @PostMapping("/{id}/saque")
-    public ResponseEntity<String> sacar(@PathVariable Long id, @RequestBody OperacaoDTO dto) {
-        operacaoService.sacar(id, dto);
-        return ResponseEntity.ok("Saque realizado com sucesso!");
+    public ResponseEntity<ComprovanteDTO> sacar(@PathVariable Long id, @RequestBody OperacaoDTO dto) {
+        BigDecimal novoSaldo = operacaoService.sacar(id, dto);
+
+        // Monta a mensagem dinâmica com o valor
+        String mensagem = "Saque de R$ " + dto.valor() + " realizado com sucesso!";
+        ComprovanteDTO comprovante = new ComprovanteDTO(mensagem, novoSaldo);
+
+        return ResponseEntity.ok(comprovante);
     }
 }
