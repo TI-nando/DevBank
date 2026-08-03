@@ -14,7 +14,7 @@ import java.time.ZoneOffset;
 public class TokenService {
 
     // Senha secreta (ALTERAR QUANDO FOR PARA PRODUÇÃO)
-    private final String secret = "devbank-senha-secreta-muito-forte";
+    private final String secret = "teste";
 
     public String gerarToken(Usuario usuario) {
         try {
