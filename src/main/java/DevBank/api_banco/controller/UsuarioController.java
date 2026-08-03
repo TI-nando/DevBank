@@ -10,16 +10,17 @@ import DevBank.api_banco.model.UsuarioRepository;
 import DevBank.api_banco.service.OperacaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-@RestController // aviasa o spring que essa classe vai responder a requisições web
-@RequestMapping("/usuarios") // Endereço dessa classee
+@RestController // avisa o spring que essa classe vai responder a requisições web
+@RequestMapping("/usuarios") // Endereço dessa classe
 public class UsuarioController {
 
-    @Autowired // O spring faz a Injeção automatica das dependencias.
+    @Autowired
     private UsuarioRepository repository;
 
     @Autowired
@@ -28,28 +29,25 @@ public class UsuarioController {
     @Autowired
     private OperacaoService operacaoService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @GetMapping("/teste")
     public String testeApi() {
         return "API do banco funcionando perfeitamente para o postman";
     }
 
-    @PostMapping
-    public Usuario cadastrar(@RequestBody Usuario novoUsuario) {
-        // @RequestBody fala para o spring pegar o JSON do POSTMAN e transformar em um objeto Usuario.
-        return  repository.save(novoUsuario);
-    }
 
     // {id} indica que sera recebido valor dinamico da URL.
     @GetMapping("/{id}")
     public Usuario buscarUsuario(@PathVariable Long id) {
-        // vai no banco, buca o ID, caso nao encontre, responde com um ERRO.
+        // vai no banco, busca o ID, caso nao encontre, responde com um ERRO.
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não Encontrado!"));
     }
 
     @GetMapping("/{id}/extrato")
     public ResponseEntity<List<ExtratoDTO>> consultarExtrato(@PathVariable Long id) {
-
         // Verificador de usuarios
         if (!repository.existsById(id)) {
             return ResponseEntity.notFound().build(); // Retorna erro 404 Not Found
@@ -65,6 +63,15 @@ public class UsuarioController {
 
         // Passo C: Devolve a lista formatada com o status 200 (OK)
         return ResponseEntity.ok(extrato);
+    }
+
+    @PostMapping
+    public Usuario cadastrar(@RequestBody Usuario novoUsuario) {
+        // Criptografar a senha antes de salvar no banco
+        String senhaCriptografada = passwordEncoder.encode(novoUsuario.getSenha());
+        novoUsuario.setSenha(senhaCriptografada);
+
+        return repository.save(novoUsuario);
     }
 
     @PostMapping("/{id}/deposito")
