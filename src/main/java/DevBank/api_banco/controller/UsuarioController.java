@@ -1,6 +1,8 @@
 package DevBank.api_banco.controller;
 
 import DevBank.api_banco.dto.ComprovanteDTO;
+import DevBank.api_banco.dto.DadosCadastroUsuarioDTO;
+import DevBank.api_banco.dto.DadosDetalhamentoUsuarioDTO;
 import DevBank.api_banco.dto.ExtratoDTO;
 import DevBank.api_banco.dto.OperacaoDTO;
 import DevBank.api_banco.model.Transacao;
@@ -37,13 +39,14 @@ public class UsuarioController {
         return "API do banco funcionando perfeitamente para o postman";
     }
 
-
-    // {id} indica que sera recebido valor dinamico da URL.
+    // ATUALIZADO: Agora usa DTO para não vazar a senha na resposta
     @GetMapping("/{id}")
-    public Usuario buscarUsuario(@PathVariable Long id) {
+    public ResponseEntity<DadosDetalhamentoUsuarioDTO> buscarUsuario(@PathVariable Long id) {
         // vai no banco, busca o ID, caso nao encontre, responde com um ERRO.
-        return repository.findById(id)
+        Usuario usuario = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não Encontrado!"));
+
+        return ResponseEntity.ok(new DadosDetalhamentoUsuarioDTO(usuario));
     }
 
     @GetMapping("/{id}/extrato")
@@ -65,13 +68,22 @@ public class UsuarioController {
         return ResponseEntity.ok(extrato);
     }
 
+    // ATUALIZADO: Recebe o DTO de cadastro (sem os campos do Spring Security) e devolve DTO limpo
     @PostMapping
-    public Usuario cadastrar(@RequestBody Usuario novoUsuario) {
+    public ResponseEntity<DadosDetalhamentoUsuarioDTO> cadastrar(@RequestBody DadosCadastroUsuarioDTO dados) {
+        // Pega os dados limpos do DTO e coloca em um novo Usuário
+        Usuario novoUsuario = new Usuario();
+        novoUsuario.setNome(dados.nome());
+        novoUsuario.setLogin(dados.login());
+        novoUsuario.setSaldo(dados.saldo());
+
         // Criptografar a senha antes de salvar no banco
-        String senhaCriptografada = passwordEncoder.encode(novoUsuario.getSenha());
+        String senhaCriptografada = passwordEncoder.encode(dados.senha());
         novoUsuario.setSenha(senhaCriptografada);
 
-        return repository.save(novoUsuario);
+        repository.save(novoUsuario);
+
+        return ResponseEntity.ok(new DadosDetalhamentoUsuarioDTO(novoUsuario));
     }
 
     @PostMapping("/{id}/deposito")
