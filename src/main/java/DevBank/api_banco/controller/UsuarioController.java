@@ -1,10 +1,6 @@
 package DevBank.api_banco.controller;
 
-import DevBank.api_banco.dto.ComprovanteDTO;
-import DevBank.api_banco.dto.DadosCadastroUsuarioDTO;
-import DevBank.api_banco.dto.DadosDetalhamentoUsuarioDTO;
-import DevBank.api_banco.dto.ExtratoDTO;
-import DevBank.api_banco.dto.OperacaoDTO;
+import DevBank.api_banco.dto.*;
 import DevBank.api_banco.model.Transacao;
 import DevBank.api_banco.model.TransacaoRepository;
 import DevBank.api_banco.model.Usuario;
@@ -41,12 +37,11 @@ public class UsuarioController {
 
     // ATUALIZADO: Agora usa DTO para não vazar a senha na resposta
     @GetMapping("/{id}")
-    public ResponseEntity<DadosDetalhamentoUsuarioDTO> buscarUsuario(@PathVariable Long id) {
-        // vai no banco, busca o ID, caso nao encontre, responde com um ERRO.
+    public ResponseEntity<DadosPerfilPublicoDTO> buscarUsuario(@PathVariable Long id) {
         Usuario usuario = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não Encontrado!"));
 
-        return ResponseEntity.ok(new DadosDetalhamentoUsuarioDTO(usuario));
+        return ResponseEntity.ok(new DadosPerfilPublicoDTO(usuario));
     }
 
     @GetMapping("/{id}/extrato")

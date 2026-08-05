@@ -1,42 +1,50 @@
 package DevBank.api_banco.infra;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @Autowired //Injetando o nosso filtro recém-criado
+    private SecurityFilter securityFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.csrf(csrf -> csrf.disable()) // Desabilita proteção contra CSRF.
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // API não guarda sessão (estado)
+        return http
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
-                    // Portões Abertos (Públicos)
-                    req.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll(); // Permissão para o swagger
-                    req.requestMatchers(HttpMethod.POST, "/usuarios").permitAll(); // Libera o cadastro de novos usuários
-                    req.requestMatchers(HttpMethod.POST, "/login").permitAll(); // Libera o login para usuarios.
-
-                    // Portões Fechados (Exigem Token)
-                    req.anyRequest().authenticated(); // Qualquer outra rota exige autenticação
-                }).build();
+                    req.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll();
+                    req.requestMatchers(HttpMethod.POST, "/usuarios").permitAll();
+                    req.requestMatchers(HttpMethod.POST, "/login").permitAll();
+                    req.requestMatchers("/error").permitAll();
+                    req.anyRequest().authenticated();
+                })
+                //Dizendo para o Spring usar nosso filtro ANTES de fazer a validação padrão dele
+                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 
-    // Usar a criptografia BCrypt para senhas
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
+    }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public org.springframework.security.authentication.AuthenticationManager authenticationManager(org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
     }
 }
