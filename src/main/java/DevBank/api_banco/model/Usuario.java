@@ -19,11 +19,13 @@ public class Usuario implements UserDetails { // <-- Assinando o contrato do Spr
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // AUTO INCREMENTA
+    @Column(unique = true)
     private Long id;
     private String nome;
     private String login;
     private String senha;
     private BigDecimal saldo;
+    private String chavePix;
 
     // MÉTODOS OBRIGATÓRIOS DO CONTRATO USER DETAILS (SPRING SECURITY)
 

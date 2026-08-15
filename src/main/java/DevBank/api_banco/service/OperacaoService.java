@@ -1,6 +1,7 @@
 package DevBank.api_banco.service;
 
 import DevBank.api_banco.dto.OperacaoDTO;
+import DevBank.api_banco.dto.PixDTO;
 import DevBank.api_banco.model.Transacao;
 import DevBank.api_banco.model.TransacaoRepository;
 import DevBank.api_banco.model.Usuario;
@@ -65,5 +66,47 @@ public class OperacaoService {
 
         // Retorna o saldo atualizado para o Controller
         return usuario.getSaldo();
+    }
+
+    // ==========================================
+    // MÉTODO: PIX
+    // ==========================================
+    @Transactional
+    public BigDecimal realizarPix(Long idRemetente, PixDTO dto) {
+        if (dto.saldo().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("O valor do Pix deve ser maior que zero.");
+        }
+
+        // 1. Busca quem está enviando com Lock de segurança
+        Usuario remetente = usuarioRepository.findByIdComLock(idRemetente)
+                .orElseThrow(() -> new EntityNotFoundException("Remetente não encontrado!"));
+
+        // 2. Busca quem vai receber PELA CHAVE PIX
+        Usuario destinatario = usuarioRepository.findByChavePix(dto.chaveDestino())
+                .orElseThrow(() -> new EntityNotFoundException("Chave Pix destino não encontrada!"));
+
+        // 3. Valida se não está transferindo para si mesmo
+        if (remetente.getId().equals(destinatario.getId())) {
+            throw new IllegalArgumentException("Você não pode fazer um Pix para a sua própria chave!");
+        }
+
+        // 4. Valida se tem saldo suficiente
+        if (remetente.getSaldo().compareTo(dto.saldo()) < 0) {
+            throw new IllegalArgumentException("Saldo insuficiente para realizar o Pix!");
+        }
+
+        // 5. Atualiza os saldos
+        remetente.setSaldo(remetente.getSaldo().subtract(dto.saldo()));
+        destinatario.setSaldo(destinatario.getSaldo().add(dto.saldo()));
+
+        usuarioRepository.save(remetente);
+        usuarioRepository.save(destinatario);
+
+        // 6. Salva a transação usando o seu excelente construtor!
+        Transacao transacaoPix = new Transacao(remetente, destinatario, dto.saldo());
+        transacaoRepository.save(transacaoPix);
+
+        // 7. Retorna o saldo atualizado
+        return remetente.getSaldo();
     }
 }

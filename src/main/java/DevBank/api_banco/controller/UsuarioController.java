@@ -102,4 +102,19 @@ public class UsuarioController {
 
         return ResponseEntity.ok(comprovante);
     }
+
+    // ==========================================
+    // NOVO ENDPOINT: PIX
+    // ==========================================
+    @PostMapping("/{id}/pix")
+    public ResponseEntity<ComprovanteDTO> fazerPix(@PathVariable Long id, @RequestBody PixDTO pixDTO) {
+        // O OperacaoService faz a transferência e nos devolve o saldo atualizado
+        BigDecimal novoSaldo = operacaoService.realizarPix(id, pixDTO);
+
+        // Monta a mensagem dinâmica para o comprovante
+        String mensagem = "Pix de R$ " + pixDTO.saldo() + " enviado com sucesso para a chave: " + pixDTO.chaveDestino();
+        ComprovanteDTO comprovante = new ComprovanteDTO(mensagem, novoSaldo);
+
+        return ResponseEntity.ok(comprovante);
+    }
 }

@@ -16,4 +16,5 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Optional<Usuario> findByIdComLock(@Param("id") Long id);
 
     UserDetails findByLogin(String login);
+    Optional<Usuario> findByChavePix(String chavePix);
 }
