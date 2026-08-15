@@ -18,7 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired //Injetando o nosso filtro recém-criado
+    @Autowired
     private SecurityFilter securityFilter;
 
     @Bean
