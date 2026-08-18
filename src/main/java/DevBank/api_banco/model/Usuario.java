@@ -26,6 +26,7 @@ public class Usuario implements UserDetails { // <-- Assinando o contrato do Spr
     private String senha;
     private BigDecimal saldo;
     private String chavePix;
+    private BigDecimal limiteCredito;
 
     // MÉTODOS OBRIGATÓRIOS DO CONTRATO USER DETAILS (SPRING SECURITY)
 

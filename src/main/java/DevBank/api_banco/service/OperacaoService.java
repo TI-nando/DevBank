@@ -52,15 +52,20 @@ public class OperacaoService {
         Usuario usuario = usuarioRepository.findByIdComLock(idUsuario)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado!"));
 
-        if (usuario.getSaldo().compareTo(dto.valor()) < 0) {
-            throw new IllegalArgumentException("Saldo insuficiente para o saque.");
+        // LÓGICA DE LIMITE (CHEQUE ESPECIAL)
+
+        BigDecimal limite = usuario.getLimiteCredito() != null ? usuario.getLimiteCredito() : BigDecimal.ZERO;
+        BigDecimal saldoDisponivel = usuario.getSaldo().add(limite);
+
+        if (saldoDisponivel.compareTo(dto.valor()) < 0) {
+            throw new IllegalArgumentException("Saldo e limite insuficientes para o saque.");
         }
 
-        // Subtrai o saldo
+        // Subtrai o saldo (pode ficar negativo sem problemas!)
         usuario.setSaldo(usuario.getSaldo().subtract(dto.valor()));
         usuarioRepository.save(usuario);
 
-        // Gera o recibo: No saque, o destinatário é nulo (o dinheiro vai para fora)
+        // Gera o recibo
         Transacao saque = new Transacao(usuario, null, dto.valor());
         transacaoRepository.save(saque);
 
@@ -68,12 +73,11 @@ public class OperacaoService {
         return usuario.getSaldo();
     }
 
-    // ==========================================
     // MÉTODO: PIX
-    // ==========================================
+
     @Transactional
     public BigDecimal realizarPix(Long idRemetente, PixDTO dto) {
-        if (dto.saldo().compareTo(BigDecimal.ZERO) <= 0) {
+        if (dto.valor().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("O valor do Pix deve ser maior que zero.");
         }
 
@@ -90,20 +94,24 @@ public class OperacaoService {
             throw new IllegalArgumentException("Você não pode fazer um Pix para a sua própria chave!");
         }
 
-        // 4. Valida se tem saldo suficiente
-        if (remetente.getSaldo().compareTo(dto.saldo()) < 0) {
-            throw new IllegalArgumentException("Saldo insuficiente para realizar o Pix!");
+        // LÓGICA DE LIMITE (CHEQUE ESPECIAL)
+
+        BigDecimal limite = remetente.getLimiteCredito() != null ? remetente.getLimiteCredito() : BigDecimal.ZERO;
+        BigDecimal saldoDisponivel = remetente.getSaldo().add(limite);
+
+        if (saldoDisponivel.compareTo(dto.valor()) < 0) {
+            throw new IllegalArgumentException("Saldo e limite insuficientes para realizar o Pix!");
         }
 
-        // 5. Atualiza os saldos
-        remetente.setSaldo(remetente.getSaldo().subtract(dto.saldo()));
-        destinatario.setSaldo(destinatario.getSaldo().add(dto.saldo()));
+        // 5. Atualiza os saldos (pode ficar negativo pro remetente)
+        remetente.setSaldo(remetente.getSaldo().subtract(dto.valor()));
+        destinatario.setSaldo(destinatario.getSaldo().add(dto.valor()));
 
         usuarioRepository.save(remetente);
         usuarioRepository.save(destinatario);
 
-        // 6. Salva a transação usando o seu excelente construtor!
-        Transacao transacaoPix = new Transacao(remetente, destinatario, dto.saldo());
+        // 6. Salva a transação
+        Transacao transacaoPix = new Transacao(remetente, destinatario, dto.valor());
         transacaoRepository.save(transacaoPix);
 
         // 7. Retorna o saldo atualizado

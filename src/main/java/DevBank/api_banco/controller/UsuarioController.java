@@ -71,6 +71,7 @@ public class UsuarioController {
         novoUsuario.setNome(dados.nome());
         novoUsuario.setLogin(dados.login());
         novoUsuario.setSaldo(dados.saldo());
+        novoUsuario.setLimiteCredito(new BigDecimal("500.00"));
 
         // Criptografar a senha antes de salvar no banco
         String senhaCriptografada = passwordEncoder.encode(dados.senha());
@@ -112,7 +113,7 @@ public class UsuarioController {
         BigDecimal novoSaldo = operacaoService.realizarPix(id, pixDTO);
 
         // Monta a mensagem dinâmica para o comprovante
-        String mensagem = "Pix de R$ " + pixDTO.saldo() + " enviado com sucesso para a chave: " + pixDTO.chaveDestino();
+        String mensagem = "Pix de R$ " + pixDTO.valor() + " enviado com sucesso para a chave: " + pixDTO.chaveDestino();
         ComprovanteDTO comprovante = new ComprovanteDTO(mensagem, novoSaldo);
 
         return ResponseEntity.ok(comprovante);

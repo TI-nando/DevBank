@@ -1,0 +1,2 @@
+ALTER TABLE usuarios ADD COLUMN chave_pix VARCHAR(255) UNIQUE;
+ALTER TABLE usuarios ADD COLUMN limite_credito DECIMAL(19,2);
