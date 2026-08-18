@@ -6,6 +6,7 @@ public record DadosCadastroUsuarioDTO(
         String nome,
         String login,
         String senha,
-        BigDecimal saldo
+        BigDecimal saldo,
+        String chavePix
 ) {
 }

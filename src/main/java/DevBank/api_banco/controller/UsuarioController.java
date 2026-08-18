@@ -71,6 +71,10 @@ public class UsuarioController {
         novoUsuario.setNome(dados.nome());
         novoUsuario.setLogin(dados.login());
         novoUsuario.setSaldo(dados.saldo());
+
+        // ---> NOVO: Pegando a chave Pix do DTO! <---
+        novoUsuario.setChavePix(dados.chavePix());
+
         novoUsuario.setLimiteCredito(new BigDecimal("500.00"));
 
         // Criptografar a senha antes de salvar no banco
