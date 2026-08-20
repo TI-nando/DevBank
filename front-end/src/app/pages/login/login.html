@@ -1,0 +1,17 @@
+<div class="login-container">
+  <h2>Acesso ao DevBank</h2>
+
+  <form [formGroup]="formularioLogin" (ngSubmit)="entrar()">
+    <div class="campo">
+      <label for="login">Usuário</label>
+      <input type="text" id="login" formControlName="login" placeholder="Seu nome de usuário" />
+    </div>
+
+    <div class="campo">
+      <label for="senha">Senha</label>
+      <input type="password" id="senha" formControlName="senha" placeholder="Sua senha" />
+    </div>
+
+    <button type="submit" [disabled]="formularioLogin.invalid">Entrar no Banco</button>
+  </form>
+</div>
